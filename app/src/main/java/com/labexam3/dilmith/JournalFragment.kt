@@ -39,7 +39,9 @@ class JournalFragment : Fragment() {
             showEmojiPickerDialog()
         }
 
-        binding.cardAddMood.setOnClickListener {
+        // *** THIS IS THE FIX ***
+        // The click listener is now on the correct button
+        binding.buttonAddMood.setOnClickListener {
             val moodText = binding.editTextMood.text.toString()
             if (moodText.isNotBlank()) {
                 addMoodEntry(moodText, selectedEmoji)
@@ -65,7 +67,7 @@ class JournalFragment : Fragment() {
 
         val emojiAdapter = EmojiAdapter(emojis) { emoji ->
             selectedEmoji = emoji
-            // You can optionally update the emoji button image here, but it's not necessary
+            binding.buttonSelectEmoji.text = emoji // Update the emoji button text
             dialog.dismiss()
         }
 
@@ -83,6 +85,7 @@ class JournalFragment : Fragment() {
         // Clear input field and reset emoji
         binding.editTextMood.text.clear()
         selectedEmoji = "😀"
+        binding.buttonSelectEmoji.text = selectedEmoji
     }
 
     override fun onDestroyView() {
