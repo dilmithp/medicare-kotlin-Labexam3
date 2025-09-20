@@ -1,3 +1,3 @@
 package com.labexam3.dilmith
 
-data class Habit(val name: String, var isCompleted: Boolean)
+data class Habit(var name: String, var isCompleted: Boolean)

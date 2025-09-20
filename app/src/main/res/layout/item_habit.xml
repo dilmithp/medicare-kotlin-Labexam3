@@ -26,7 +26,16 @@
         <CheckBox
             android:id="@+id/habit_checkbox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"/>
+
+        <ImageView
+            android:id="@+id/button_delete_habit"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_delete"
+            app:tint="@android:color/holo_red_light" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

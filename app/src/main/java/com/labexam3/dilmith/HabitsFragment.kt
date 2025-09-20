@@ -36,15 +36,18 @@ class HabitsFragment : Fragment() {
         updateProgress()
 
         binding.fabAddHabit.setOnClickListener {
-            showAddHabitDialog()
+            showAddOrEditHabitDialog()
         }
     }
 
     private fun setupRecyclerView() {
         habitAdapter = HabitAdapter(
             habitsList,
-            onHabitChanged = { habit ->
+            onHabitChanged = {
                 updateProgress()
+            },
+            onHabitEdited = { habit ->
+                showAddOrEditHabitDialog(habit)
             },
             onHabitDeleted = { habit ->
                 deleteHabit(habit)
@@ -54,16 +57,28 @@ class HabitsFragment : Fragment() {
         binding.habitsRecyclerView.adapter = habitAdapter
     }
 
-    private fun showAddHabitDialog() {
+    private fun showAddOrEditHabitDialog(habitToEdit: Habit? = null) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_habit, null)
         val editText = dialogView.findViewById<EditText>(R.id.edit_text_habit_name)
 
+        val title = if (habitToEdit == null) "Add New Habit" else "Edit Habit"
+        val positiveButtonText = if (habitToEdit == null) "Add" else "Save"
+
+        habitToEdit?.let {
+            editText.setText(it.name)
+        }
+
         AlertDialog.Builder(requireContext())
+            .setTitle(title)
             .setView(dialogView)
-            .setPositiveButton("Add") { dialog, _ ->
+            .setPositiveButton(positiveButtonText) { dialog, _ ->
                 val habitName = editText.text.toString()
                 if (habitName.isNotBlank()) {
-                    addHabit(Habit(habitName, false))
+                    if (habitToEdit == null) {
+                        addHabit(Habit(habitName, false))
+                    } else {
+                        updateHabit(habitToEdit, habitName)
+                    }
                 }
                 dialog.dismiss()
             }
@@ -76,6 +91,14 @@ class HabitsFragment : Fragment() {
         habitsList.add(habit)
         habitAdapter.notifyItemInserted(habitsList.size - 1)
         updateProgress()
+    }
+
+    private fun updateHabit(habit: Habit, newName: String) {
+        val position = habitsList.indexOf(habit)
+        if (position != -1) {
+            habitsList[position].name = newName
+            habitAdapter.notifyItemChanged(position)
+        }
     }
 
     private fun deleteHabit(habit: Habit) {

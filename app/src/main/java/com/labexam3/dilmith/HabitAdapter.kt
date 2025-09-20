@@ -8,6 +8,7 @@ import com.labexam3.dilmith.databinding.ItemHabitBinding
 class HabitAdapter(
     private val habits: MutableList<Habit>,
     private val onHabitChanged: (Habit) -> Unit,
+    private val onHabitEdited: (Habit) -> Unit,
     private val onHabitDeleted: (Habit) -> Unit
 ) : RecyclerView.Adapter<HabitAdapter.HabitViewHolder>() {
 
@@ -29,10 +30,14 @@ class HabitAdapter(
             onHabitChanged(habit)
         }
 
-        // Handle long press to delete
-        holder.itemView.setOnLongClickListener {
+        // Handle click on the text to edit
+        holder.binding.habitName.setOnClickListener {
+            onHabitEdited(habit)
+        }
+
+        // Handle click on the delete button
+        holder.binding.buttonDeleteHabit.setOnClickListener {
             onHabitDeleted(habit)
-            true // Consume the event
         }
     }
 
