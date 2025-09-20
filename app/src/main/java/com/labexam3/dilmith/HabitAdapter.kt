@@ -5,7 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.labexam3.dilmith.databinding.ItemHabitBinding
 
-class HabitAdapter(private val habits: List<Habit>) : RecyclerView.Adapter<HabitAdapter.HabitViewHolder>() {
+class HabitAdapter(
+    private val habits: MutableList<Habit>,
+    private val onHabitChanged: (Habit) -> Unit,
+    private val onHabitDeleted: (Habit) -> Unit
+) : RecyclerView.Adapter<HabitAdapter.HabitViewHolder>() {
 
     inner class HabitViewHolder(val binding: ItemHabitBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -18,6 +22,18 @@ class HabitAdapter(private val habits: List<Habit>) : RecyclerView.Adapter<Habit
         val habit = habits[position]
         holder.binding.habitName.text = habit.name
         holder.binding.habitCheckbox.isChecked = habit.isCompleted
+
+        // Handle checkbox clicks
+        holder.binding.habitCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            habit.isCompleted = isChecked
+            onHabitChanged(habit)
+        }
+
+        // Handle long press to delete
+        holder.itemView.setOnLongClickListener {
+            onHabitDeleted(habit)
+            true // Consume the event
+        }
     }
 
     override fun getItemCount() = habits.size
