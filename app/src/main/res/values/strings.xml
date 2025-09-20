@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Zenith Wellness</string>
     <string-array name="reminder_intervals">
+        <item>1 Minute</item>
         <item>30 Minutes</item>
         <item>1 Hour</item>
         <item>1 Hour 30 Minutes</item>
