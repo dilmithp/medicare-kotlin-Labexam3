@@ -19,7 +19,7 @@ class MoodAdapter(private val moodEntries: List<MoodEntry>) : RecyclerView.Adapt
     override fun onBindViewHolder(holder: MoodViewHolder, position: Int) {
         val moodEntry = moodEntries[position]
         holder.binding.moodText.text = moodEntry.text
-        holder.binding.moodEmoji.setImageResource(moodEntry.emojiResId)
+        holder.binding.moodEmoji.text = moodEntry.emoji
 
         val sdf = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
         holder.binding.moodTimestamp.text = sdf.format(moodEntry.timestamp)

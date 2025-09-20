@@ -6,12 +6,14 @@
     android:orientation="horizontal"
     android:padding="16dp">
 
-    <ImageView
+    <TextView
         android:id="@+id/mood_emoji"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_conversation" />
+        android:gravity="center"
+        android:text="😀"
+        android:textSize="36sp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -34,4 +36,5 @@
             android:text="September 20, 2025"
             android:textSize="14sp" />
     </LinearLayout>
+
 </LinearLayout>

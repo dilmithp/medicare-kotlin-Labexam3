@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.labexam3.dilmith.databinding.FragmentJournalBinding
 import java.util.Date
 
@@ -13,6 +16,11 @@ class JournalFragment : Fragment() {
 
     private var _binding: FragmentJournalBinding? = null
     private val binding get() = _binding!!
+    private lateinit var moodAdapter: MoodAdapter
+    private val moodEntries = mutableListOf(
+        MoodEntry("Feeling great today!", "😀", Date())
+    )
+    private var selectedEmoji: String = "😀"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,17 +33,56 @@ class JournalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupRecyclerView()
+
+        binding.buttonSelectEmoji.setOnClickListener {
+            showEmojiPickerDialog()
+        }
+
+        binding.cardAddMood.setOnClickListener {
+            val moodText = binding.editTextMood.text.toString()
+            if (moodText.isNotBlank()) {
+                addMoodEntry(moodText, selectedEmoji)
+            }
+        }
+    }
+
+    private fun setupRecyclerView() {
+        moodAdapter = MoodAdapter(moodEntries)
         binding.moodRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.moodRecyclerView.adapter = moodAdapter
+    }
 
-        // Dummy data for the mood list
-        val moodEntries = listOf(
-            MoodEntry("Feeling great today!", R.drawable.ic_conversation, Date()),
-            MoodEntry("A bit tired, but productive.", R.drawable.ic_conversation, Date()),
-            MoodEntry("Ready for the weekend!", R.drawable.ic_conversation, Date())
-        )
+    private fun showEmojiPickerDialog() {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_emoji_picker, null)
+        val emojiRecyclerView = dialogView.findViewById<RecyclerView>(R.id.emoji_recycler_view)
 
-        val adapter = MoodAdapter(moodEntries)
-        binding.moodRecyclerView.adapter = adapter
+        val emojis = listOf("😀", "😍", "😊", "🥳", "😴", "😢", "😠", "🤔")
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        val emojiAdapter = EmojiAdapter(emojis) { emoji ->
+            selectedEmoji = emoji
+            // You can optionally update the emoji button image here, but it's not necessary
+            dialog.dismiss()
+        }
+
+        emojiRecyclerView.layoutManager = GridLayoutManager(context, 4)
+        emojiRecyclerView.adapter = emojiAdapter
+
+        dialog.show()
+    }
+
+    private fun addMoodEntry(text: String, emoji: String) {
+        moodEntries.add(0, MoodEntry(text, emoji, Date()))
+        moodAdapter.notifyItemInserted(0)
+        binding.moodRecyclerView.scrollToPosition(0)
+
+        // Clear input field and reset emoji
+        binding.editTextMood.text.clear()
+        selectedEmoji = "😀"
     }
 
     override fun onDestroyView() {
