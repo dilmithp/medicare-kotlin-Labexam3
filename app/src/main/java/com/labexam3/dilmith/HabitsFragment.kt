@@ -1,5 +1,9 @@
 package com.labexam3.dilmith
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +12,8 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.labexam3.dilmith.databinding.FragmentHabitsBinding
 
 class HabitsFragment : Fragment() {
@@ -15,11 +21,7 @@ class HabitsFragment : Fragment() {
     private var _binding: FragmentHabitsBinding? = null
     private val binding get() = _binding!!
     private lateinit var habitAdapter: HabitAdapter
-    private val habitsList = mutableListOf(
-        Habit("Drink 8 glasses of water", true),
-        Habit("Walk 10,000 steps", false),
-        Habit("Meditate for 15 minutes", false)
-    )
+    private val habitsList = mutableListOf<Habit>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,6 +34,7 @@ class HabitsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        loadHabits() // Load saved habits when the view is created
         setupRecyclerView()
         updateProgress()
 
@@ -44,6 +47,7 @@ class HabitsFragment : Fragment() {
         habitAdapter = HabitAdapter(
             habitsList,
             onHabitChanged = {
+                saveHabitsAndUpdateWidget()
                 updateProgress()
             },
             onHabitEdited = { habit ->
@@ -90,6 +94,7 @@ class HabitsFragment : Fragment() {
     private fun addHabit(habit: Habit) {
         habitsList.add(habit)
         habitAdapter.notifyItemInserted(habitsList.size - 1)
+        saveHabitsAndUpdateWidget()
         updateProgress()
     }
 
@@ -98,6 +103,7 @@ class HabitsFragment : Fragment() {
         if (position != -1) {
             habitsList[position].name = newName
             habitAdapter.notifyItemChanged(position)
+            saveHabitsAndUpdateWidget()
         }
     }
 
@@ -106,6 +112,7 @@ class HabitsFragment : Fragment() {
         if (position != -1) {
             habitsList.removeAt(position)
             habitAdapter.notifyItemRemoved(position)
+            saveHabitsAndUpdateWidget()
             updateProgress()
         }
     }
@@ -113,12 +120,37 @@ class HabitsFragment : Fragment() {
     private fun updateProgress() {
         val completedCount = habitsList.count { it.isCompleted }
         val totalCount = habitsList.size
-        val progress = if (totalCount > 0) {
-            (completedCount * 100 / totalCount)
-        } else {
-            0
-        }
+        val progress = if (totalCount > 0) (completedCount * 100 / totalCount) else 0
         binding.habitProgressBar.progress = progress
+    }
+
+    private fun saveHabitsAndUpdateWidget() {
+        // Save the current list of habits to SharedPreferences
+        val prefs = requireActivity().getSharedPreferences("habit_prefs", Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        val gson = Gson()
+        val json = gson.toJson(habitsList)
+        editor.putString("habits_list", json)
+        editor.apply()
+
+        // Send a broadcast to update the widget
+        val intent = Intent(requireContext(), HabitWidgetProvider::class.java)
+        intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        val ids = AppWidgetManager.getInstance(requireContext())
+            .getAppWidgetIds(ComponentName(requireContext(), HabitWidgetProvider::class.java))
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        requireContext().sendBroadcast(intent)
+    }
+
+    private fun loadHabits() {
+        val prefs = requireActivity().getSharedPreferences("habit_prefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = prefs.getString("habits_list", null)
+        if (json != null) {
+            val type = object : TypeToken<MutableList<Habit>>() {}.type
+            habitsList.clear()
+            habitsList.addAll(gson.fromJson(json, type))
+        }
     }
 
     override fun onDestroyView() {
