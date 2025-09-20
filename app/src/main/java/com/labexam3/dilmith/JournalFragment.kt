@@ -29,9 +29,9 @@ class JournalFragment : Fragment() {
 
         // Dummy data for the mood list
         val moodEntries = listOf(
-            MoodEntry("Feeling great today!", R.drawable.ic_journal, Date()),
-            MoodEntry("A bit tired, but productive.", R.drawable.ic_journal, Date()),
-            MoodEntry("Ready for the weekend!", R.drawable.ic_journal, Date())
+            MoodEntry("Feeling great today!", R.drawable.ic_conversation, Date()),
+            MoodEntry("A bit tired, but productive.", R.drawable.ic_conversation, Date()),
+            MoodEntry("Ready for the weekend!", R.drawable.ic_conversation, Date())
         )
 
         val adapter = MoodAdapter(moodEntries)

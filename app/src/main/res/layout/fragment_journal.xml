@@ -45,7 +45,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="16dp"
-                android:src="@drawable/ic_journal"
+                android:src="@drawable/ic_conversation"
                 app:tint="@color/colorAccent" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
